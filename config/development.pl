@@ -1,5 +1,11 @@
-+{
+use Cwd 'abs_path';
 
++{
+    'DB' => {
+            'dsn' => 'dbi:mysql:database=test:host=localhost',
+            username => 'test',
+            password => '',
+    },
     'Text::Xslate' => {
         path => ['tmpl/'],
     },

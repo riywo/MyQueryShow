@@ -6,6 +6,7 @@ use MyQA::Web;
 use Plack::Builder;
 
 builder {
+    enable 'Debug';
     enable 'Plack::Middleware::Static',
         path => qr{^/static/},
         root => './htdocs/';

@@ -1,0 +1,12 @@
+<table>
+<tr>
+    <td> num </td><td> time </td><td> ave </td><td> pct </td><td> fingerprint </td>
+</tr>
+
+[% FOR row in rows %]
+<tr>
+    <td> [% row.num %] </td><td> [% row.time %] </td><td> [% row.ave %] </td><td> [% row.pct %] </td><td> [% row.fingerprint %] </td>
+</tr>
+[% END %]
+
+</table>
