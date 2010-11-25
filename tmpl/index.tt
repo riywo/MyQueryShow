@@ -1,0 +1,5 @@
+[% INCLUDE 'include/header.tt' %]
+
+hello, Amon2 world!
+
+[% INCLUDE 'include/footer.tt' %]
