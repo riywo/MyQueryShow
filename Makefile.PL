@@ -1,5 +1,5 @@
 use inc::Module::Install;
-all_from "lib/MyQA.pm";
+all_from "lib/MyQueryShow.pm";
 
 tests 't/*.t t/*/*.t t/*/*/*.t';
 requires 'Amon2';

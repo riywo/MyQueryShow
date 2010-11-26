@@ -10,8 +10,8 @@ license: unknown
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
   version: 1.4
-module_name: MyQA
-name: MyQA
+module_name: MyQueryShow
+name: MyQueryShow
 no_index:
   directory:
     - inc

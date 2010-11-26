@@ -4,7 +4,7 @@ use Plack::Test;
 use Plack::Util;
 use Test::More;
 
-my $app = Plack::Util::load_psgi 'MyQA.psgi';
+my $app = Plack::Util::load_psgi 'MyQueryShow.psgi';
 test_psgi
     app => $app,
     client => sub {

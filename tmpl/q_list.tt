@@ -1,0 +1,43 @@
+[% INCLUDE 'include/header.tt' %]
+
+<form action="q_list">
+Time Range: <input type="text" name="start" size="20" value="[% start_date %]"> to <input type="text" name="end" size="20" value="[% end_date %]">
+Order by: 
+<select name="order">
+<option value="count">count</option>
+<option value="all_time">all_time</option>
+<option value="avg_time">avg_time</option>
+<option value="pct95_time">pct95_time</option>
+</select>
+<input type="submit" value="submit">
+</form>
+
+[% IF msg %]
+<p>ERROR: [% msg %]</p>
+[% END %]
+
+<table>
+<tr>
+<td>order by [[% order_by %]]</td>
+<!-- <td>checksum</td> -->
+<td>query count</td>
+<td>all time[msec]</td>
+<td>avg time[msec]</td>
+<td>95% time[msec]</td>
+<td>fingerprint</td>
+</tr>
+
+[% FOR q IN query_list %]
+<tr>
+<td>[% q.rank %]</td>
+<!-- <td>[% q.checksum %]</td> -->
+<td>[% q.count | format("%.1f") %] [[% q.count / count_sum * 100 | format("%.2f") %]%]</td>
+<td>[% q.all_time | format("%.2f") %] [[% q.all_time / time_sum * 100 | format("%.2f") %]%]</td>
+<td>[% q.avg_time | format("%.2f") %]</td>
+<td>[% q.pct95_time | format("%.2f") %]</td>
+<td>[% q.fingerprint | format("%-30.30s") %]</td>
+</tr>
+[% END %]
+</table>
+
+[% INCLUDE 'include/footer.tt' %]
