@@ -12,7 +12,6 @@ use DateTime::Format::MySQL;
 
 sub list {
     my ($class, $c) = @_;
-
     my $msg = '';
 
     my $start_date = $c->req->param('start');
@@ -57,6 +56,39 @@ group by checksum
         msg => $msg,
     });
 }
+
+sub detail {
+    my ($class, $c, $args) = @_;
+    my $msg;
+
+    my $checksum = $args->{checksum};
+    my $start_date = $c->req->param('start');
+    my $end_date = $c->req->param('end');
+
+    my $start_dt = $start_date ? DateTime::Format::HTTP->parse_datetime($start_date, $c->tz) : DateTime->now( time_zone => $c->tz)->subtract(%{$c->config->{'detail'}->{'default_timespan'}});
+    my $end_dt = $end_date ? DateTime::Format::HTTP->parse_datetime($end_date, $c->tz) : DateTime->now(time_zone => $c->tz);
+
+    my $dbh = $c->db->dbh;
+    my $fingerprint = shift @{shift @{$dbh->selectall_arrayref("select fingerprint from query_review where checksum = ?", {}, $checksum)}};
+
+    my $rows = $dbh->selectall_arrayref("
+select ts_min time, ts_cnt count, Query_time_sum/ts_cnt*1000 avg_time, Query_time_pct_95*1000 pct95_time from query_review_history
+where checksum = ? and ts_min >= ? and ts_min < ? order by ts_min;
+    ", { Columns => {} }, $checksum, $start_dt, $end_dt); 
+
+    if($#{$rows} <= 1){
+        $msg = "data not found on '$start_dt' to '$end_dt'";
+    }
+
+    $c->render("detail.tt", { 
+        fingerprint => $fingerprint,
+        rows => $rows,
+        start_date => DateTime::Format::MySQL->format_datetime($start_dt),
+        end_date => DateTime::Format::MySQL->format_datetime($end_dt),
+        msg => $msg,
+    });
+}
+
 
 =pod 
 

@@ -34,7 +34,7 @@ Order by:
 <td>[% q.all_time | format("%.2f") %] [[% q.all_time / time_sum * 100 | format("%.2f") %]%]</td>
 <td>[% q.avg_time | format("%.2f") %]</td>
 <td>[% q.pct95_time | format("%.2f") %]</td>
-<td>[% q.fingerprint | format("%-30.30s") %]</td>
+<td><a href="./detail/[% q.checksum %]">[% q.fingerprint | format("%-30.30s") %]</a></td>
 </tr>
 [% END %]
 </table>

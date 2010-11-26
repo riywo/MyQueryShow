@@ -6,6 +6,8 @@ use Amon2::Web::Dispatcher::RouterSimple;
 
 connect '/' => 'Root#list';
 connect '/list' => 'Root#list';
-#connect '/detail' => 'Root#detail';
+submapper('/detail/{checksum}')
+    ->connect('', { controller => 'Root', action => 'detail'})
+    ->connect('/', { controller => 'Root', action => 'detail'});
 
 1;

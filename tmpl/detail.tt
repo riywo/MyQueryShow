@@ -1,0 +1,32 @@
+[% INCLUDE 'include/header.tt' %]
+
+<div>[% fingerprint %]</div>
+
+<form action="">
+Time Range: <input type="text" name="start" size="20" value="[% start_date %]"> to <input type="text" name="end" size="20" value="[% end_date %]">
+<input type="submit" value="submit">
+</form>
+
+[% IF msg %]
+<p>ERROR: [% msg %]</p>
+[% END %]
+
+<table>
+<tr>
+<td>time</td>
+<td>count</td>
+<td>avg time[msec]</td>
+<td>95% time[msec]</td>
+</tr>
+
+[% FOR r IN rows %]
+<tr>
+<td>[% r.time %]</td>
+<td>[% r.count | format("%.1f") %]</td>
+<td>[% r.avg_time | format("%.2f") %]</td>
+<td>[% r.pct95_time | format("%.2f") %]</td>
+</tr>
+[% END %]
+</table>
+
+[% INCLUDE 'include/footer.tt' %]

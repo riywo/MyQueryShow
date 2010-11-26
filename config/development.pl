@@ -24,4 +24,9 @@ use Cwd 'abs_path';
         'order_colmuns' => [ qw/count all_time avg_time pct95_time/ ],
         'default_order' => 'all_time',
     },
+    'detail' => {
+        'default_timespan' => {
+            days => 1,
+        },
+    },
 };
