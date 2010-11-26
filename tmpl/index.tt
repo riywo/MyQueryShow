@@ -1,5 +1,23 @@
-[% INCLUDE 'include/header.tt' %]
+<table>
+<tr>
+<td>rank [[% order_by %]]</td>
+<!-- <td>checksum</td> -->
+<td>query count</td>
+<td>all time[msec]</td>
+<td>avg time[msec]</td>
+<td>95% time[msec]</td>
+<td>fingerprint</td>
+</tr>
 
-hello, Amon2 world!
-
-[% INCLUDE 'include/footer.tt' %]
+[% FOR q IN query_list %]
+<tr>
+<td>[% q.rank %]</td>
+<!-- <td>[% q.checksum %]</td> -->
+<td>[% q.count %] [[% q.count / count_sum * 100 %]]</td>
+<td>[% q.alltime %] [[% q.alltime / time_sum * 100 %]]</td>
+<td>[% q.avg_time %]</td>
+<td>[% q.pct95_time %]</td>
+<td>[% q.fingerprint %]</td>
+</tr>
+[% END %]
+</table>
