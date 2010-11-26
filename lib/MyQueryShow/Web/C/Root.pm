@@ -2,14 +2,15 @@ package MyQueryShow::Web::C::Root;
 use strict;
 use warnings;
 use DateTime::Format::HTTP;
+use DateTime::Format::MySQL;
 
-sub index {
-    my ($class, $c) = @_;
-    
-    $c->render("index.tt");
-}
+#sub index {
+#    my ($class, $c) = @_;
+#    
+#    $c->render("index.tt");
+#}
 
-sub queryList {
+sub list {
     my ($class, $c) = @_;
 
     my $msg = '';
@@ -17,11 +18,9 @@ sub queryList {
     my $start_date = $c->req->param('start');
     my $end_date = $c->req->param('end');
 
-    my $start_dt = $start_date ? DateTime::Format::HTTP->parse_datetime($start_date) : DateTime->n;
-    my $end_dt = DateTime::Format::HTTP->parse_datetime($end_date);
-    my $order_by = $c->req->param('order') || 'all_time';
-
-#    my $time_diff = $end_date - $start_date; #こんな感じ
+    my $start_dt = $start_date ? DateTime::Format::HTTP->parse_datetime($start_date, $c->tz) : DateTime->now( time_zone => $c->tz)->subtract(%{$c->config->{'list'}->{'default_timespan'}});
+    my $end_dt = $end_date ? DateTime::Format::HTTP->parse_datetime($end_date, $c->tz) : DateTime->now(time_zone => $c->tz);
+    my $order_by = $c->req->param('order') || $c->config->{'list'}->{'default_order'};
 
     my $dbh = $c->db->dbh;
     my $rows = $dbh->selectall_arrayref("
@@ -34,7 +33,7 @@ group by checksum
     my $count_sum = 0;
     my $time_sum = 0;
     if($#{$rows} <= 1){
-        $msg = "rows not found on '$start_date' to '$end_date'";
+        $msg = "rows not found on '$start_dt' to '$end_dt'";
     }else{
         my $rank = 0;
         foreach my $row ( sort { $b->{$order_by} <=> $a->{$order_by} } @{$rows} ){
@@ -47,16 +46,19 @@ group by checksum
         }
     }
 
-    $c->render("q_list.tt", { 
+    $c->render("list.tt", { 
         query_list => $query_list,
         count_sum => $count_sum,
         time_sum => $time_sum,
+        order_column => $c->config->{'list'}->{'order_colmuns'},
         order_by => $order_by,
-        start_date => $start_date,
-        end_date => $end_date,
+        start_date => DateTime::Format::MySQL->format_datetime($start_dt),
+        end_date => DateTime::Format::MySQL->format_datetime($end_dt),
         msg => $msg,
     });
 }
+
+=pod 
 
 sub test {
     my ($class, $c) = @_;
@@ -74,5 +76,7 @@ sub test {
 
     $c->render("test.tt", { rows => $rows });
 }
+
+=cut
 
 1;

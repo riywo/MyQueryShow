@@ -17,4 +17,11 @@ use Cwd 'abs_path';
             newline => 1],
         ],
     },
+    'list' => {
+        'default_timespan' => {
+            hours => 24,
+        },
+        'order_colmuns' => [ qw/count all_time avg_time pct95_time/ ],
+        'default_order' => 'all_time',
+    },
 };

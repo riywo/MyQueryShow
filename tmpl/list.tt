@@ -1,13 +1,12 @@
 [% INCLUDE 'include/header.tt' %]
 
-<form action="q_list">
+<form action="list">
 Time Range: <input type="text" name="start" size="20" value="[% start_date %]"> to <input type="text" name="end" size="20" value="[% end_date %]">
 Order by: 
 <select name="order">
-<option value="count">count</option>
-<option value="all_time">all_time</option>
-<option value="avg_time">avg_time</option>
-<option value="pct95_time">pct95_time</option>
+[% FOR option in order_column %]
+<option value="[% option %]"[% IF option == order_by %] selected[% END %]>[% option %]</option>
+[% END %]
 </select>
 <input type="submit" value="submit">
 </form>

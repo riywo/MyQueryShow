@@ -22,4 +22,15 @@ sub db {
     }
 }
 
+use DateTime::TimeZone;
+sub tz {
+    my ($c, ) = @_;
+
+    if($c->{tz}){
+        return $c->{tz};
+    }else{
+        return DateTime::TimeZone->new(name => 'local');
+    }
+}
+
 1;
