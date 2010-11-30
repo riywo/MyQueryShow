@@ -2,7 +2,7 @@ package MyQueryShow::M::Query;
 use strict;
 use warnings;
 use Amon2::Declare;
-use DateTime;
+use DateTime::Format::HTTP;
 use Data::Dumper;
 
 sub get_queries {
@@ -35,5 +35,32 @@ from query_review_history where checksum = ? and ts_min >= ? and ts_min < ?
     return $query_times->[0];
 }
 
-1;
+sub get_query_list_with_time {
+    my ($self, $start_dt, $end_dt) = @_;
+    my $time_span = c->config->{'tcpdump'}->{'time_span'};
 
+    my $dbh = c->db->dbh;
+    my $rows = $dbh->selectall_arrayref("
+select r.checksum, avg(ts_cnt/$time_span) qps, avg(Query_time_sum*1000) all_time, avg(Query_time_sum/ts_cnt*1000) avg_time, avg(Query_time_pct_95*1000) pct95_time, fingerprint
+from query_review r, query_review_history h where r.checksum = h.checksum and ts_min >= ? and ts_min < ?
+group by checksum
+    ", { Columns => {} }, $start_dt, $end_dt);
+
+    return $rows;
+}
+
+sub get_query_detail {
+    my ($self, $checksum, $start_dt, $end_dt) = @_;
+    my $time_span = c->config->{'tcpdump'}->{'time_span'};
+
+    my $dbh = c->db->dbh;
+    my $rows = $dbh->selectall_arrayref("
+select date_format(ts_min,'%Y-%m-%d %H:%i:00') time, ts_cnt/$time_span qps, Query_time_sum/ts_cnt*1000 avg_time, Query_time_pct_95*1000 pct95_time from query_review_history
+where checksum = ? and ts_min >= ? and ts_min < ? order by ts_min;
+    ", { Columns => {} }, $checksum, $start_dt, $end_dt); 
+
+    return $rows;
+}
+
+
+1;

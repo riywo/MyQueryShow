@@ -74,30 +74,30 @@ sub update_rrd {
 }
 
 sub make_graph {
-    my ($self, $checksum, $start, $end, $type) = @_;
+    my ($self, $checksum, $type, $height, $width, $start, $opt) = @_;
     my $conf = c->config->{'RRD'};
 
-    my $img_path = c->base_dir."/$conf->{'IMG_PATH'}";
-    my ($img_file, @options);
+    my $img_path = c->base_dir."/htdocs/$conf->{'IMG_PATH'}";
+    my ($img_file, @options1, @options2);
+    push @options1, "--imgformat=PNG";
+    push @options1, "--start=$start";
+    push @options1, "--end=$opt->{'end'}" if($opt->{'end'});
+    push @options1, "--height=$height";
+    push @options1, "--width=$width";
+
     eval{
-        ($img_file, @options) = _make_graph_options($checksum, $type);
+        ($img_file, @options2) = _make_graph_options($checksum, $type);
     };
     if($@){
         return $@;
     }
-
-    RRDs::graph("$img_path/$img_file",
-        "--imgformat=PNG",
-        "--start=$start",
-        "--end=$end",
-        "--height=120",
-        "--width=500",
-        @options);
+print join("\n", (@options1, @options2))."\n";
+    my (undef, $width, $height) = RRDs::graph("$img_path/$img_file", @options1, @options2);
     if(my $ERR = RRDs::error){
         return $ERR;
     }
 
-    return $img_file;
+    return ($img_file, $width, $height);
 }
 	
 sub _make_graph_options {
@@ -111,11 +111,39 @@ sub _make_graph_options {
     my ($img_file, @options);
     $img_file = "$checksum-$type.png";
 
+#    push @options, "--title=$img_conf->{'LABEL'}->{'title'}" if($img_conf->{'LABEL'}->{'title'});
+#    push @options, "--vertical-label=$img_conf->{'LABEL'}->{'label'}" if($img_conf->{'LABEL'}->{'label'});
+
+    while (my ($opt, $value) = each %{$img_conf->{'OPTION'}}){
+        if($value eq ''){
+            push @options, "--$opt";
+        }else{
+            push @options, "--$opt=$value";
+        }
+    }
+
     for my $def (keys(%{$img_conf->{'DEF'}})){
         push @options, "DEF:$def=$rrd_path/$checksum-$def.rrd:$def:$img_conf->{'DEF'}->{$def}";
     }
+    for my $cdef (@{$img_conf->{'CDEF'}}){
+        push @options, "CDEF:$cdef";
+    }
 
-    push @options, "AREA:count#00CF00:COUNT";
+    for my $drow (@{$img_conf->{'DROW'}}){
+        my $detail = $img_conf->{'DROWDETAIL'}->{$drow};
+        if($detail->{'AREA'}){
+            push @options, "AREA:${drow}$detail->{'AREA'}";
+        }
+        if($detail->{'LINE'}){
+            push @options, "LINE:${drow}$detail->{'LINE'}";
+        }
+        if($detail->{'GPRINT'}){
+            my $format = $detail->{'GPRINT'};
+            push @options, "GPRINT:$drow:LAST:cur\\:$format";
+            push @options, "GPRINT:$drow:AVERAGE:avg\\:$format";
+            push @options, "GPRINT:$drow:MAX:max\\:$format\\n";
+        }
+    }
 
     return ($img_file, @options);
 }

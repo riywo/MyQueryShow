@@ -1,6 +1,8 @@
 package MyQueryShow::Web::C::Root;
 use strict;
 use warnings;
+use MyQueryShow::M::RRD;
+use MyQueryShow::M::Query;
 use DateTime::Format::HTTP;
 use DateTime::Format::MySQL;
 
@@ -13,41 +15,51 @@ use DateTime::Format::MySQL;
 sub list {
     my ($class, $c) = @_;
     my $msg = '';
+    my $conf = $c->config->{'list'};
 
     my $start_date = $c->req->param('start');
     my $end_date = $c->req->param('end');
 
-    my $start_dt = $start_date ? DateTime::Format::HTTP->parse_datetime($start_date, $c->tz) : DateTime->now( time_zone => $c->tz)->subtract(%{$c->config->{'list'}->{'default_timespan'}});
-    my $end_dt = $end_date ? DateTime::Format::HTTP->parse_datetime($end_date, $c->tz) : DateTime->now(time_zone => $c->tz);
-    my $order_by = $c->req->param('order') || $c->config->{'list'}->{'default_order'};
+    my $start_dt = $start_date ? DateTime::Format::HTTP->parse_datetime($start_date, $c->tz)
+        : DateTime->now( time_zone => $c->tz)->subtract(%{$conf->{'default_timespan'}});
+    my $end_dt = $end_date ? DateTime::Format::HTTP->parse_datetime($end_date, $c->tz)
+        : DateTime->now(time_zone => $c->tz);
+    my $order_by = $c->req->param('order') || $conf->{'default_order'};
 
-    my $dbh = $c->db->dbh;
-    my $rows = $dbh->selectall_arrayref("
-select r.checksum, avg(ts_cnt) count, avg(Query_time_sum*1000) all_time, avg(Query_time_sum/ts_cnt*1000) avg_time, avg(Query_time_pct_95*1000) pct95_time, fingerprint
-from query_review r, query_review_history h where r.checksum = h.checksum and ts_min >= ? and ts_min < ?
-group by checksum
-    ", { Columns => {} }, $start_dt, $end_dt);
+    my $rows = MyQueryShow::M::Query->get_query_list_with_time($start_dt, $end_dt);
 
     my $query_list;
-    my $count_sum = 0;
-    my $time_sum = 0;
+    my ($qps_sum, $time_sum) = (0, 0);
+    my ($rrd_height, $rrd_width) = ($conf->{'rrd_size'}->{'height'}, $conf->{'rrd_size'}->{'width'});
     if($#{$rows} <= 1){
         $msg = "rows not found on '$start_dt' to '$end_dt'";
     }else{
         my $rank = 0;
+        my $opt = { end => $end_dt->epoch };
         foreach my $row ( sort { $b->{$order_by} <=> $a->{$order_by} } @{$rows} ){
-            $count_sum += $row->{'count'};
-            $time_sum += $row->{'all_time'};
             $rank ++;
-
+            last if($rank > $conf->{'limit'});
             $row->{'rank'} = $rank;
+            $qps_sum += $row->{'qps'};
+            $time_sum += $row->{'all_time'};
+
+            my ($qps_rrd, $qps_width, $qps_height) = MyQueryShow::M::RRD->make_graph($row->{'checksum'}, 'mini_qps', $rrd_height, $rrd_width, $start_dt->epoch, $opt);
+            $row->{'qps_rrd'} = $c->config->{'RRD'}->{'IMG_PATH'}."/$qps_rrd";
+            $row->{'qps_rrd_width'} = $qps_width;
+            $row->{'qps_rrd_height'} = $qps_height;
+
+            my ($pct_rrd, $pct_width, $pct_height) = MyQueryShow::M::RRD->make_graph($row->{'checksum'}, 'mini_pct', $rrd_height, $rrd_width, $start_dt->epoch, $opt);
+            $row->{'pct_rrd'} = $c->config->{'RRD'}->{'IMG_PATH'}."/$pct_rrd";
+            $row->{'pct_rrd_width'} = $pct_width;
+            $row->{'pct_rrd_height'} = $pct_height;
+
             push @{$query_list}, $row;
         }
     }
 
     $c->render("list.tt", { 
         query_list => $query_list,
-        count_sum => $count_sum,
+        qps_sum => $qps_sum,
         time_sum => $time_sum,
         order_column => $c->config->{'list'}->{'order_colmuns'},
         order_by => $order_by,
@@ -59,24 +71,24 @@ group by checksum
 
 sub detail {
     my ($class, $c, $args) = @_;
-    my $msg;
+    my $msg = '';
+    my $conf = $c->config->{'detail'};
 
     my $checksum = $args->{checksum};
     my $start_date = $c->req->param('start');
     my $end_date = $c->req->param('end');
 
-    my $start_dt = $start_date ? DateTime::Format::HTTP->parse_datetime($start_date, $c->tz) : DateTime->now( time_zone => $c->tz)->subtract(%{$c->config->{'detail'}->{'default_timespan'}});
-    my $end_dt = $end_date ? DateTime::Format::HTTP->parse_datetime($end_date, $c->tz) : DateTime->now(time_zone => $c->tz);
+    my $start_dt = $start_date ? DateTime::Format::HTTP->parse_datetime($start_date, $c->tz)
+        : DateTime->now(time_zone => $c->tz)->subtract(%{$conf->{'default_timespan'}});
+    my $end_dt = $end_date ? DateTime::Format::HTTP->parse_datetime($end_date, $c->tz)
+        : DateTime->now(time_zone => $c->tz);
 
     my $dbh = $c->db->dbh;
     my $fingerprint = shift @{shift @{$dbh->selectall_arrayref("select fingerprint from query_review where checksum = ?", {}, $checksum)}};
 
-    my $rows = $dbh->selectall_arrayref("
-select ts_min time, ts_cnt count, Query_time_sum/ts_cnt*1000 avg_time, Query_time_pct_95*1000 pct95_time from query_review_history
-where checksum = ? and ts_min >= ? and ts_min < ? order by ts_min;
-    ", { Columns => {} }, $checksum, $start_dt, $end_dt); 
+    my $rows = MyQueryShow::M::Query->get_query_detail($checksum, $start_dt, $end_dt);
 
-    if($#{$rows} <= 1){
+    if($#{$rows} < 0){
         $msg = "data not found on '$start_dt' to '$end_dt'";
     }
 

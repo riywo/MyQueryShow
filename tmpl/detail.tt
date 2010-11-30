@@ -14,7 +14,7 @@ Time Range: <input type="text" name="start" size="20" value="[% start_date %]"> 
 <table>
 <tr>
 <td>time</td>
-<td>count</td>
+<td>qps</td>
 <td>avg time[msec]</td>
 <td>95% time[msec]</td>
 </tr>
@@ -22,7 +22,7 @@ Time Range: <input type="text" name="start" size="20" value="[% start_date %]"> 
 [% FOR r IN rows %]
 <tr>
 <td>[% r.time %]</td>
-<td>[% r.count | format("%.1f") %]</td>
+<td>[% r.qps | format("%.2f") %]</td>
 <td>[% r.avg_time | format("%.2f") %]</td>
 <td>[% r.pct95_time | format("%.2f") %]</td>
 </tr>
