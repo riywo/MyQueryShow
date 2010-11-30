@@ -4,3 +4,6 @@ MANIFEST
 *.bak
 *.old
 nytprof.out
+rrd/
+htdocs/rrd/
+.DS_Store
