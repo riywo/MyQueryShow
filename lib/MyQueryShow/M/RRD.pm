@@ -91,7 +91,7 @@ sub make_graph {
     if($@){
         return $@;
     }
-print join("\n", (@options1, @options2))."\n";
+#print join("\n", (@options1, @options2))."\n";
     my (undef, $img_width, $img_height) = RRDs::graph("$img_path/$img_file", @options1, @options2);
     if(my $ERR = RRDs::error){
         return $ERR;
@@ -110,9 +110,6 @@ sub _make_graph_options {
     my $rrd_path = c->base_dir."/$conf->{'RRD_PATH'}/$checksum";
     my ($img_file, @options);
     $img_file = "$checksum-$type.png";
-
-#    push @options, "--title=$img_conf->{'LABEL'}->{'title'}" if($img_conf->{'LABEL'}->{'title'});
-#    push @options, "--vertical-label=$img_conf->{'LABEL'}->{'label'}" if($img_conf->{'LABEL'}->{'label'});
 
     while (my ($opt, $value) = each %{$img_conf->{'OPTION'}}){
         if($value eq ''){

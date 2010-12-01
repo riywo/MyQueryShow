@@ -18,7 +18,7 @@ $sth->execute;
 while(my $ref = $sth->fetchrow_arrayref){
     my ($checksum) = @{$ref};
 print "$checksum\n";
-next if($checksum eq '26684480389196246');
+
     my $rows = $dbh->selectall_arrayref("
 select date_format(ts_min,'%Y-%m-%d %H:%i:00') ts_min, ts_cnt count, query_time_sum*1000 sum_time, query_time_min*1000 min_time, query_time_max*1000 max_time, query_time_pct_95*1000 pct95_time
 from query_review_history where checksum = ? order by ts_min
