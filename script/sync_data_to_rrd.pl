@@ -29,7 +29,7 @@ from query_review_history where checksum = ? order by ts_min
     print $ret if($ret ne 0);
 
     foreach my $row (@{$rows}){
-        my $date = DateTime::Format::HTTP->parse_datetime($row->{'ts_min'});
+        my $date = DateTime::Format::HTTP->parse_datetime($row->{'ts_min'}, $c->tz);
         $ret = MyQueryShow::M::RRD->update_rrd($checksum, $date->epoch, $row);
         print $ret if($ret ne 0);
 print "$date\n";
