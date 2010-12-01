@@ -92,10 +92,13 @@ sub make_graph {
         return $@;
     }
 #print join("\n", (@options1, @options2))."\n";
+
+    $ENV{'TZ'} = c->config->{'TZ'};
     my (undef, $img_width, $img_height) = RRDs::graph("$img_path/$img_file", @options1, @options2);
     if(my $ERR = RRDs::error){
         return $ERR;
     }
+    delete $ENV{'TZ'};
 
     return ($img_file, $img_width, $img_height);
 }

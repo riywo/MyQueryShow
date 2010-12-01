@@ -29,7 +29,7 @@ sub tz {
     if($c->{tz}){
         return $c->{tz};
     }else{
-        return DateTime::TimeZone->new(name => 'local');
+        return DateTime::TimeZone->new(name => $c->config->{'TZ'});
     }
 }
 
