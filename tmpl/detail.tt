@@ -12,19 +12,31 @@ Time Range: <input type="text" name="start" size="20" value="[% start_date %]"> 
 [% END %]
 
 <table>
+<tr><td><img src="../../[% rrd.qps %]" height="[% rrd.qps_height %]" width="[% rrd.qps_width %]"></td><tr>
+<tr><td><img src="../../[% rrd.min %]" height="[% rrd.min_height %]" width="[% rrd.min_width %]"></td></tr>
+<tr><td><img src="../../[% rrd.avg %]" height="[% rrd.avg_height %]" width="[% rrd.avg_width %]"></td></tr>
+<tr><td><img src="../../[% rrd.pct95 %]" height="[% rrd.pct95_height %]" width="[% rrd.pct95_width %]"></td></tr>
+<tr><td><img src="../../[% rrd.max %]" height="[% rrd.max_height %]" width="[% rrd.max_width %]"></td></tr>
+</table>
+
+<table>
 <tr>
 <td>time</td>
 <td>qps</td>
+<td>min time[msec]</td>
 <td>avg time[msec]</td>
 <td>95% time[msec]</td>
+<td>max time[msec]</td>
 </tr>
 
 [% FOR r IN rows %]
 <tr>
 <td>[% r.time %]</td>
 <td>[% r.qps | format("%.2f") %]</td>
+<td>[% r.min_time | format("%.2f") %]</td>
 <td>[% r.avg_time | format("%.2f") %]</td>
 <td>[% r.pct95_time | format("%.2f") %]</td>
+<td>[% r.max_time | format("%.2f") %]</td>
 </tr>
 [% END %]
 </table>

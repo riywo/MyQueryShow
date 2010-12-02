@@ -1,6 +1,8 @@
 use Cwd 'abs_path';
+my $time_span = 30;
 
 +{
+    'TZ' => 'GMT',
     'DB' => {
             'dsn' => 'dbi:mysql:database=test:host=localhost',
             username => 'test',
@@ -18,17 +20,18 @@ use Cwd 'abs_path';
         ],
     },
     'tcpdump' => {
-        'time_span' => 30,
+        'time_span' => $time_span,
     },
     'list' => {
         'default_timespan' => { hours => 24 },
-        'order_colmuns' => [ qw/qps all_time avg_time pct95_time/ ],
+        'order_colmuns' => [ qw/all_time count qps avg_time pct95_time/ ],
         'default_order' => 'all_time',
         'limit' => 20,
         'rrd_size' => { height => 40, width => 250 },
     },
     'detail' => {
         'default_timespan' => { days => 1 },
+        'rrd_size' => { height => 80, width => 500 },
     },
     'RRD' => {
         step => 60,
@@ -54,14 +57,27 @@ use Cwd 'abs_path';
         IMG => {
             mini_qps => {
                 DEF => { count => 'MAX' },
-                CDEF => [ qw(qps=count,30,/) ],
+                CDEF => [ "qps=count,$time_span,/" ],
                 OPTION => {
                     'no-legend' => '',
                 },
                 DROW => [ qw(qps) ],
                 DROWDETAIL => {
                     qps => {
-                        AREA => '#00CF00:qps',
+                        AREA => '#0000CD:qps',
+                    },
+                },
+            },
+            mini_avg => {
+                DEF => { count => 'MAX', sum_time => 'MAX' },
+                CDEF => [ "avg_time=sum_time,count,/" ],
+                OPTION => {
+                    'no-legend' => '',
+                },
+                DROW => [ qw(avg_time) ],
+                DROWDETAIL => {
+                    avg_time => {
+                        LINE => '#32CD32:avg',
                     },
                 },
             },
@@ -79,7 +95,7 @@ use Cwd 'abs_path';
             },
             qps => {
                 DEF => { count => 'MAX' },
-                CDEF => [ qw(qps=count,30,/) ],
+                CDEF => [ "qps=count,$time_span,/" ],
                 OPTION => {
                     title => 'query count',
                     'vertical-label' => 'qps',
@@ -87,8 +103,64 @@ use Cwd 'abs_path';
                 DROW => [ qw(qps) ],
                 DROWDETAIL => {
                     qps => {
-                        AREA => '#00CF00:qps',
-                        LINE => '#CF0000',
+                        AREA => '#0000CD:qps',
+                        GPRINT => '%7.3lf',
+                    },
+                }
+            },
+            min => {
+                DEF => { min_time => 'MAX' },
+                OPTION => {
+                    title => 'min time',
+                    'vertical-label' => 'msec',
+                },
+                DROW => [ qw(min_time) ],
+                DROWDETAIL => {
+                    min_time => {
+                        LINE => '#00BBFF:min',
+                        GPRINT => '%7.3lf',
+                    },
+                }
+            },
+            avg => {
+                DEF => { sum_time => 'MAX', count => 'MAX' },
+                CDEF => [ "avg_time=sum_time,count,/" ],
+                OPTION => {
+                    title => 'avg time',
+                    'vertical-label' => 'msec',
+                },
+                DROW => [ qw(avg_time) ],
+                DROWDETAIL => {
+                    avg_time => {
+                        LINE => '#32CD32:avg',
+                        GPRINT => '%7.3lf',
+                    },
+                }
+            },
+            pct95 => {
+                DEF => { pct95_time => 'MAX' },
+                OPTION => {
+                    title => '95% time',
+                    'vertical-label' => 'msec',
+                },
+                DROW => [ qw(pct95_time) ],
+                DROWDETAIL => {
+                    pct95_time => {
+                        LINE => '#FFD700:pct95',
+                        GPRINT => '%7.3lf',
+                    },
+                }
+            },
+            max => {
+                DEF => { max_time => 'MAX' },
+                OPTION => {
+                    title => 'max time',
+                    'vertical-label' => 'msec',
+                },
+                DROW => [ qw(max_time) ],
+                DROWDETAIL => {
+                    max_time => {
+                        LINE => '#FF0000:max',
                         GPRINT => '%7.3lf',
                     },
                 }
