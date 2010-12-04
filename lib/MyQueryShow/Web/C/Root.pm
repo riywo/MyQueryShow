@@ -63,7 +63,15 @@ sub list {
         }
     }
 
+    my $preset;
+    $preset->{'hours'} = DateTime::Format::MySQL->format_datetime($end_dt->clone->subtract(hours => 6));
+    $preset->{'dayly'} = DateTime::Format::MySQL->format_datetime($end_dt->clone->subtract(days => 1));
+    $preset->{'weekly'} = DateTime::Format::MySQL->format_datetime($end_dt->clone->subtract(weeks => 1));
+    $preset->{'monthly'} = DateTime::Format::MySQL->format_datetime($end_dt->clone->subtract(months => 1));
+    $preset->{'yearly'} = DateTime::Format::MySQL->format_datetime($end_dt->clone->subtract(years => 1));
+
     $c->render("list.tt", { 
+        js => 'list.js',
         query_list => $query_list,
         count_sum => $count_sum,
         time_sum => $time_sum,
@@ -71,6 +79,7 @@ sub list {
         order_by => $order_by,
         start_date => DateTime::Format::MySQL->format_datetime($start_dt),
         end_date => DateTime::Format::MySQL->format_datetime($end_dt),
+        preset => $preset,
         msg => $msg,
     });
 }

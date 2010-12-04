@@ -1,6 +1,14 @@
 [% INCLUDE 'include/header.tt' %]
 
-<form action="list">
+<div>
+<a href="/list?start=[% preset.hours %]&end=[% end_date %]">6 hours</a>
+<a href="/list?start=[% preset.dayly %]&end=[% end_date %]">dayly</a>
+<a href="/list?start=[% preset.weekly %]&end=[% end_date %]">weekly</a>
+<a href="/list?start=[% preset.monthly %]&end=[% end_date %]">monthly</a>
+<a href="/list?start=[% preset.yearly %]&end=[% end_date %]">yearly</a>
+</div>
+
+<form action="/list">
 Time Range: <input type="text" name="start" size="20" value="[% start_date %]"> to <input type="text" name="end" size="20" value="[% end_date %]">
 Order by: 
 <select name="order">
@@ -15,33 +23,33 @@ Order by:
 <p>ERROR: [% msg %]</p>
 [% END %]
 
-<table>
+<table id="list">
 <tr>
-<td></td>
-<td>all time[msec]</td>
-<td>count</td>
-<td>qps</td>
-<td>avg time[msec]</td>
-<td>95% time[msec]</td>
-<td>fingerprint</td>
-<td>qps rrd</td>
-<td>avg rrd</td>
-<td>95% time rrd</td>
+<th id="rank"></th>
+<th id="alltime">all time</th>
+<th id="count">count</th>
+<th id="qps">qps</th>
+<th id="avg">avg</th>
+<th id="pct95">95%</th>
+<th id="fp">query</th>
+<th id="qps_rrd">qps rrd</th>
+<th id="avg_rrd">avg rrd</th>
+<th id="pct95_rrd">95% rrd</th>
 </tr>
 
 [% FOR q IN query_list %]
 <tr>
 <td>[% q.rank %]</td>
-<td>[% q.all_time | format("%.2f") %] [[% q.all_time / time_sum * 100 | format("%.2f") %]%]</td>
-<td>[% q.count %] [[% q.count / count_sum * 100 | format("%.2f") %]%]</td>
+<td>[% q.all_time | format("%.2f") %]</td>
+<td>[% q.count %]</td>
 <td>[% q.qps | format("%.2f") %]</td>
 <td>[% q.avg_time | format("%.2f") %]</td>
 <td>[% q.pct95_time | format("%.2f") %]</td>
-<td><a href="./detail/[% q.checksum %]/?start=[% start_date %]&end=[% end_date %]">[% q.fingerprint | format("%-30.30s") %]</a></td>
-<!-- <td><a href="./detail/[% q.checksum %]/?start=[% start_date %]&end=[% end_date %]">[% q.fingerprint %]</a></td> -->
-<td><img src="[% q.qps_rrd %]" height="[% q.qps_rrd_height %]" width="[% q.qps_rrd_width %]"></td>
-<td><img src="[% q.avg_rrd %]" height="[% q.avg_rrd_height %]" width="[% q.avg_rrd_width %]"></td>
-<td><img src="[% q.pct_rrd %]" height="[% q.pct_rrd_height %]" width="[% q.pct_rrd_width %]"></td>
+<!-- <td><a href="/detail/[% q.checksum %]/?start=[% start_date %]&end=[% end_date %]">[% q.fingerprint | format("%-30.30s") %]</a></td> -->
+<td><a href="/detail/[% q.checksum %]/?start=[% start_date %]&end=[% end_date %]">[% q.fingerprint %]</a></td>
+<td><img src="/[% q.qps_rrd %]" height="[% q.qps_rrd_height %]" width="[% q.qps_rrd_width %]"></td>
+<td><img src="/[% q.avg_rrd %]" height="[% q.avg_rrd_height %]" width="[% q.avg_rrd_width %]"></td>
+<td><img src="/[% q.pct_rrd %]" height="[% q.pct_rrd_height %]" width="[% q.pct_rrd_width %]"></td>
 </tr>
 [% END %]
 </table>

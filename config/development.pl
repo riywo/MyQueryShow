@@ -27,7 +27,7 @@ my $time_span = 30;
         'order_colmuns' => [ qw/all_time count qps avg_time pct95_time/ ],
         'default_order' => 'all_time',
         'limit' => 20,
-        'rrd_size' => { height => 40, width => 250 },
+        'rrd_size' => { height => 30, width => 170 },
     },
     'detail' => {
         'default_timespan' => { days => 1 },

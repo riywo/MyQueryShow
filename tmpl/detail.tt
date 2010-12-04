@@ -2,7 +2,7 @@
 
 <div>[% fingerprint %]</div>
 
-<form action="">
+<form action="/detail">
 Time Range: <input type="text" name="start" size="20" value="[% start_date %]"> to <input type="text" name="end" size="20" value="[% end_date %]">
 <input type="submit" value="submit">
 </form>
@@ -12,11 +12,11 @@ Time Range: <input type="text" name="start" size="20" value="[% start_date %]"> 
 [% END %]
 
 <table>
-<tr><td><img src="../../[% rrd.qps %]" height="[% rrd.qps_height %]" width="[% rrd.qps_width %]"></td><tr>
-<tr><td><img src="../../[% rrd.min %]" height="[% rrd.min_height %]" width="[% rrd.min_width %]"></td></tr>
-<tr><td><img src="../../[% rrd.avg %]" height="[% rrd.avg_height %]" width="[% rrd.avg_width %]"></td></tr>
-<tr><td><img src="../../[% rrd.pct95 %]" height="[% rrd.pct95_height %]" width="[% rrd.pct95_width %]"></td></tr>
-<tr><td><img src="../../[% rrd.max %]" height="[% rrd.max_height %]" width="[% rrd.max_width %]"></td></tr>
+<tr><td><img src="/[% rrd.qps %]" height="[% rrd.qps_height %]" width="[% rrd.qps_width %]"></td><tr>
+<tr><td><img src="/[% rrd.min %]" height="[% rrd.min_height %]" width="[% rrd.min_width %]"></td></tr>
+<tr><td><img src="/[% rrd.avg %]" height="[% rrd.avg_height %]" width="[% rrd.avg_width %]"></td></tr>
+<tr><td><img src="/[% rrd.pct95 %]" height="[% rrd.pct95_height %]" width="[% rrd.pct95_width %]"></td></tr>
+<tr><td><img src="/[% rrd.max %]" height="[% rrd.max_height %]" width="[% rrd.max_width %]"></td></tr>
 </table>
 
 <table>
