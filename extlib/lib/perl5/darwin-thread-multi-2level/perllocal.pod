@@ -1,0 +1,22 @@
+=head2 Fri Dec 10 21:32:53 2010: C<Module> L<Amon2|Amon2>
+
+=over 4
+
+=item *
+
+C<installed into: /Users/iwanagaryosuke/perl/MyQueryShow/extlib/lib/perl5>
+
+=item *
+
+C<LINKTYPE: dynamic>
+
+=item *
+
+C<VERSION: 2.06>
+
+=item *
+
+C<EXE_FILES: script/amon2-setup.pl>
+
+=back
+
