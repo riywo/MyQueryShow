@@ -19,6 +19,9 @@ no_index:
     - xt
 requires:
   Amon2: 0
+  DateTime: 0
+  DateTime::Format::HTTP: 0
+  DateTime::Format::MySQL: 0
   HTML::FillInForm::Lite: 0
   Plack::Middleware::ReverseProxy: 0
   Text::Xslate: 0

@@ -4,7 +4,7 @@ MANIFEST
 *.bak
 *.old
 nytprof.out
-rrd/
-htdocs/static/img/rrd/
+*.rrd
+htdocs/static/img/rrd/*.png
 .DS_Store
 *.swp
